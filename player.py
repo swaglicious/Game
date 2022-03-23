@@ -18,6 +18,12 @@ class Player(pygame.sprite.Sprite):
         self.display_surface = surface
         self.create_jump_particlese = create_jump_particles
 
+        # initialise the joystick module
+        pygame.joystick.init()
+        self.joysticks = [
+            pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())
+        ]
+
         # player movement
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 8
@@ -89,17 +95,18 @@ class Player(pygame.sprite.Sprite):
                 self.display_surface.blit(flipped_img, pos)
 
     def get_input(self):
-        keys = pygame.key.get_pressed()
+        leftstick_x = self.joysticks[0].get_axis(0)
+        ybutton = self.joysticks[0].get_button(3)
 
-        if keys[pygame.K_RIGHT]:
-            self.direction.x = 1
+        if leftstick_x > 0.15:
+            self.direction.x = leftstick_x
             self.facing_right = True
-        elif keys[pygame.K_LEFT]:
-            self.direction.x = -1
+        elif leftstick_x < -0.15:
+            self.direction.x = leftstick_x
             self.facing_right = False
         else:
             self.direction.x = 0
-        if keys[pygame.K_SPACE] and self.on_ground:
+        if ybutton and self.on_ground:
             self.jump()
             self.create_jump_particlese(self.rect.midbottom)
 
